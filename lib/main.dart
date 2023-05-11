@@ -1,13 +1,23 @@
+import 'package:chatproject/screens/Auth/Decider.dart';
 import 'package:chatproject/screens/ChatPage.dart';
 import 'package:chatproject/screens/DashBoard.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
+import 'firebase_options.dart';
 import 'screens/HomePage.dart';
 
-void main(){
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await GetStorage.init();
+  runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -15,8 +25,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Chat App Prototype",home: HomePage(),
+      title: "Chat App Prototype",
+      home: Decider(),
     );
-    
   }
 }

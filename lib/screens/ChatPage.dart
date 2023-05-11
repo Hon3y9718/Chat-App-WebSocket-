@@ -1,129 +1,149 @@
+import 'package:chatproject/Controllers/ConnectionController.dart';
+import 'package:chatproject/models/UserModel.dart';
 import 'package:chatproject/screens/DashBoard.dart';
+import 'package:chatproject/widgets/chatBox.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ChatPage extends StatelessWidget {
-  const ChatPage({Key? key}) : super(key: key);
+class ChatPage extends StatefulWidget {
+  const ChatPage({Key? key, required this.user}) : super(key: key);
+
+  final UserModel user;
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  var connection = Get.put(ConnectionController());
+  TextEditingController messageController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: connection.msglist.length > 1 ? true : true,
       backgroundColor: const Color.fromARGB(231, 244, 250, 254),
-      body: SafeArea(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(25.0),
-                      bottomLeft: Radius.circular(25.0)),
-                  color: Colors.white,
-                ),
-                height: 100,
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      appBar: PreferredSize(
+        preferredSize: Size(Get.width, 100),
+        child: SafeArea(
+          child: Container(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(25.0),
+                  bottomLeft: Radius.circular(25.0)),
+              color: Colors.white,
+            ),
+            height: 80,
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Container(
+                        color: Colors.white,
+                        child: IconButton(
+                          iconSize: 30,
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.black,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            Get.to(() => const Dashboard());
+                          },
+                        )),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                            color: Colors.white,
-                            child: IconButton(
-                              iconSize: 30,
-                              icon: const Icon(
-                                Icons.arrow_back,
-                                color: Colors.black,
-                                size: 25,
-                              ),
-                              onPressed: () {Get.to(Dashboard());},
-                            )),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 10),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.purple,
+                            child: widget.user.name!.isNotEmpty
+                                ? Text(widget.user.name![0])
+                                : Text(widget.user.id![0]),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                             Padding(
-                               padding: const EdgeInsets.only(left:8.0, right: 10),
-                               child: CircleAvatar(backgroundImage: AssetImage("lib/assets/pic.jpg"),),
-                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Text('  Sebastian Rudiger',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    )),
-                                Text('  Online',
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.green))
-                              ],
-                            ),
+                            Text(
+                                "${widget.user.name!.isNotEmpty ? widget.user.name : widget.user.id}",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                )),
                           ],
                         ),
                       ],
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                            color: Colors.white,
-                            child: IconButton(
-                              iconSize: 30,
-                              icon: const Icon(
-                                Icons.video_call_rounded,
-                                color: Colors.grey,
-                                size: 30,
-                              ),
-                              onPressed: () {},
-                            )),
-                        Container(
-                            color: Colors.white,
-                            child: IconButton(
-                              iconSize: 30,
-                              icon: const Icon(
-                                Icons.call,
-                                color: Colors.grey,
-                                size: 30,
-                              ),
-                              onPressed: () {},
-                            )),
-                      ],
-                    )
                   ],
                 ),
-              ),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: 1,
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      chatBox(context, 'Hi, Jimmy! Any update today?', false),
-                      chatBox(context, "All good! we have some update", true)
-                    ],
-                  );
-                },
-              ),
-            ],
+              ],
+            ),
           ),
-          Container(
+        ),
+      ),
+      body: SafeArea(
+          child: Stack(
+        children: [
+          SizedBox(
+            height: Get.height * 0.74,
+            child: GlowingOverscrollIndicator(
+              color: Colors.purpleAccent,
+              axisDirection: AxisDirection.down,
+              child: Obx(
+                () => ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: connection.msglist.length,
+                  itemBuilder: (context, index) {
+                    return connection.msglist[index].from != null
+                        ? connection.msglist[index].from! == widget.user.id &&
+                                    connection.msglist[index].userid! ==
+                                        connection.myid ||
+                                connection.msglist[index].from! ==
+                                        connection.myid &&
+                                    connection.msglist[index].userid! ==
+                                        widget.user.id
+                            ? chatBox(context,
+                                date: DateTime.parse(
+                                    connection.msglist[index].date!),
+                                isSender: connection.msglist[index].userid ==
+                                        connection.myid
+                                    ? false
+                                    : true,
+                                text: connection.msglist[index].msgtext)
+                            : Container()
+                        : Container();
+                  },
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                     topRight: Radius.circular(25.0),
                     topLeft: Radius.circular(25.0)),
                 color: Colors.white,
               ),
-              height: 100,
+              height: 80,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                      padding: EdgeInsets.only(left: 10),
+                      padding: const EdgeInsets.only(left: 10),
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20),
@@ -132,9 +152,10 @@ class ChatPage extends StatelessWidget {
                       ),
                       height: 60,
                       width: Get.width * 0.7,
-                      child: const Center(
+                      child: Center(
                         child: TextField(
-                          decoration: InputDecoration(
+                          controller: messageController,
+                          decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintText: "Type here...."),
                         ),
@@ -157,56 +178,18 @@ class ChatPage extends StatelessWidget {
                           color: Colors.grey,
                           size: 30,
                         ),
-                        onPressed: () {},
+                        onPressed: () async {
+                          await connection.sendmsg(
+                              messageController.text, widget.user.id!);
+                          messageController.clear();
+                        },
                       ))
                 ],
-              ))
+              ),
+            ),
+          ),
         ],
       )),
     );
   }
-}
-
-Widget chatBox(BuildContext context, text, isSender) {
-  return Align(
-    alignment: isSender ? Alignment.topRight : Alignment.topLeft,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 20, top: 25, left: 20),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-                topRight: const Radius.circular(15.0),
-                topLeft: const Radius.circular(15.0),
-                bottomLeft: Radius.circular(isSender ? 15.0 : .0),
-                bottomRight: Radius.circular(isSender ? 0 : 15.0)),
-            color: isSender
-                ? const Color.fromARGB(255, 103, 42, 234)
-                : Colors.white,
-          ),
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 16,
-              color: isSender ? Colors.white : Colors.black,
-              fontFamily: 'Roboto_Black',
-            ),
-          ),
-        ),
-        const Padding(
-          padding: EdgeInsets.only(left: 25.0, top: 10),
-          child: Text(
-            '09:34 PM',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-              fontFamily: 'Roboto_Black',
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }
