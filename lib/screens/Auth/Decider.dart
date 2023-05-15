@@ -1,3 +1,4 @@
+import 'package:chatproject/Constants.dart';
 import 'package:chatproject/screens/DashBoard.dart';
 import 'package:chatproject/screens/HomePage.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _DeciderState extends State<Decider> {
     return const Scaffold(
       body: Center(
         child: CircularProgressIndicator(
-          color: Colors.purple,
+          color: Pallete.primary,
         ),
       ),
     );

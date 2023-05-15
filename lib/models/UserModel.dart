@@ -33,14 +33,22 @@ class Msglist {
   String? userid;
   String? from;
   String? date;
+  String? fileName;
 
-  Msglist({this.msgtext, this.auth, this.userid, this.date, this.from});
+  Msglist(
+      {this.msgtext,
+      this.auth,
+      this.userid,
+      this.fileName,
+      this.date,
+      this.from});
 
   Msglist.fromJson(Map<String, dynamic> json) {
     msgtext = json['msgtext'];
     auth = json['auth'];
     from = json['from'];
     userid = json['userid'];
+    fileName = json['fileName'];
     date = json['date'];
   }
 
@@ -49,6 +57,7 @@ class Msglist {
     data['msgtext'] = this.msgtext;
     data['auth'] = this.auth;
     data['from'] = this.from;
+    data['fileName'] = this.fileName;
     data['userid'] = this.userid;
     data['date'] = this.date;
     return data;

@@ -1,5 +1,5 @@
+import 'package:chatproject/Constants.dart';
 import 'package:chatproject/screens/Auth/SignIn.dart';
-import 'package:chatproject/screens/DashBoard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,7 +21,7 @@ class HomePage extends StatelessWidget {
                 width: Get.width,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                      image: AssetImage("lib/assets/frontpage1.jpg"),
+                      image: AssetImage("assets/frontpage1.jpg"),
                       fit: BoxFit.fitHeight),
                 ),
               ),
@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
                     child: Container(
                       decoration: (BoxDecoration(
                         borderRadius: BorderRadius.circular(30.0),
-                        color: Colors.purple,
+                        color: Pallete.secondary,
                       )),
                       height: 50,
                       width: Get.width - 100,

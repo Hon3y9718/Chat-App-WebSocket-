@@ -1,3 +1,4 @@
+import 'package:chatproject/Constants.dart';
 import 'package:chatproject/Controllers/ConnectionController.dart';
 import 'package:chatproject/models/UserModel.dart';
 import 'package:chatproject/screens/ChatPage.dart';
@@ -23,10 +24,25 @@ class _NewChatState extends State<NewChat> {
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text("Add New Chat"),
+          title: const Text(
+            "Start Chat",
+            style: TextStyle(color: Pallete.secondary),
+          ),
+          elevation: 0,
           centerTitle: true,
-          backgroundColor: Colors.deepPurple,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Pallete.primary,
+            ),
+            onPressed: () {
+              Get.back();
+            },
+          ),
+          backgroundColor: Colors.white,
         ),
         body: connection.contacts.isNotEmpty
             ? SizedBox(
@@ -34,7 +50,7 @@ class _NewChatState extends State<NewChat> {
                 child: Obx(
                   () => ListView.separated(
                       // shrinkWrap: true,
-                      itemCount: connection.usersOnServer.length,
+                      itemCount: connection.allMobile.length,
                       itemBuilder: (BuildContext context, int index) {
                         return connection.allMobile.isNotEmpty
                             ? ListTile(
@@ -61,10 +77,10 @@ class _NewChatState extends State<NewChat> {
                                         "${connection.allMobile[index].phones![0].value}")
                                     : const Text(""),
                                 leading: CircleAvatar(
-                                  backgroundColor: Colors.purple.shade200,
+                                  backgroundColor: Pallete.secondary,
                                   child: Text(
                                     connection.allMobile[index].displayName![0],
-                                    style: const TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.white),
                                   ),
                                 ),
                               )

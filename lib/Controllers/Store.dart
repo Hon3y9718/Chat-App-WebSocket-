@@ -8,31 +8,41 @@ import 'package:path_provider/path_provider.dart';
 class Store {
   var db = GetStorage();
 
-  readData() async {
-    var data = await db.read("history");
-    return jsonDecode(data);
+  readData() {
+    var data = db.read("history");
+    print("DataONRead: $data");
+    if (data != null) {
+      return jsonDecode(data);
+    } else {
+      return null;
+    }
   }
 
   writeData(newData) async {
+    db.write("history", null);
     db.write("history", jsonEncode(newData));
-    print(newData);
+    print("WriteData: $newData");
+    print("IsDataStored: ${db.read("history")}");
   }
 
   Future<List<UserModel>> getAllChatForDashboard() async {
-    var data = await readData();
-    print(data);
+    var data = readData() ?? [];
+    print("DataOnDash: $data");
     List<UserModel> users = [];
-    data.forEach((element) {
-      var u = UserModel.fromJson(element);
+    if (data != null) {
+      data.forEach((element) {
+        var u = UserModel.fromJson(element);
 
-      users.add(u);
-    });
+        users.add(u);
+      });
+    }
     return users;
   }
 
   addNewMessage({id, msg}) async {
     var userFound = false;
-    var data = await readData();
+    var data = readData() ?? [];
+    print("DataFromHistory: $data");
     data.forEach((element) {
       if (element['id'] == id) {
         element['msglist'].add(msg.toJson());
@@ -50,12 +60,14 @@ class Store {
   }
 
   getAllMessages() async {
-    var data = await readData();
+    var data = readData() ?? [];
     var messages = [];
-    data.forEach((element) {
-      element['msglist']
-          .forEach((item) => {messages.add(Msglist.fromJson(item))});
-    });
+    if (data != null) {
+      data.forEach((element) {
+        element['msglist']
+            .forEach((item) => {messages.add(Msglist.fromJson(item))});
+      });
+    }
     return messages;
   }
 

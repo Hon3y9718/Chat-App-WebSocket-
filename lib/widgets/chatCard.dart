@@ -1,3 +1,4 @@
+import 'package:chatproject/Constants.dart';
 import 'package:chatproject/screens/ChatPage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,8 +21,11 @@ Widget chatCard(BuildContext context, {name, lastMessage, time, id, user}) {
                   // height: 90,
                   width: Get.width * 0.10,
                   child: CircleAvatar(
-                    backgroundColor: Colors.purple,
-                    child: Text("${name[0]}"),
+                    backgroundColor: const Color.fromARGB(255, 50, 46, 77),
+                    child: Text(
+                      "${name[0]}",
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),
@@ -40,10 +44,14 @@ Widget chatCard(BuildContext context, {name, lastMessage, time, id, user}) {
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        Text(
-                          lastMessage,
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 103, 101, 101)),
+                        SizedBox(
+                          width: Get.width * 0.5,
+                          child: Text(
+                            lastMessage ?? "",
+                            maxLines: 1,
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 103, 101, 101)),
+                          ),
                         )
                       ],
                     ),

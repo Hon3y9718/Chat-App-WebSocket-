@@ -1,11 +1,12 @@
+import 'dart:convert';
+
+import 'package:chatproject/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-Widget chatBox(BuildContext context, {text, date, isSender}) {
-  if (date == null) {
-    date = DateTime.now();
-  }
-  
+Widget chatBox(BuildContext context, {text, date, isSender, fileName}) {
+  date ??= DateTime.now();
+
   return Align(
     alignment: isSender ? Alignment.topRight : Alignment.topLeft,
     child: Column(
@@ -20,21 +21,21 @@ Widget chatBox(BuildContext context, {text, date, isSender}) {
                 topLeft: const Radius.circular(15.0),
                 bottomLeft: Radius.circular(isSender ? 15.0 : .0),
                 bottomRight: Radius.circular(isSender ? 0 : 15.0)),
-            color: isSender
-                ? const Color.fromARGB(255, 103, 42, 234)
-                : Colors.white,
+            color: isSender ? Pallete.primary : Colors.white,
           ),
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 16,
-              color: isSender ? Colors.white : Colors.black,
-              fontFamily: 'Roboto_Black',
-            ),
-          ),
+          child: fileName != null
+              ? Image.memory(base64Decode(text))
+              : Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isSender ? Colors.white : Colors.black,
+                    fontFamily: 'Roboto_Black',
+                  ),
+                ),
         ),
         Padding(
-          padding: EdgeInsets.only(left: 25.0, top: 10),
+          padding: const EdgeInsets.only(left: 25.0, top: 10),
           child: Text(
             DateFormat("hh:mm a").format(date.toLocal()),
             style: const TextStyle(

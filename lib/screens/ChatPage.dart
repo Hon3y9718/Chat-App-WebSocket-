@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:chatproject/Constants.dart';
 import 'package:chatproject/Controllers/ConnectionController.dart';
 import 'package:chatproject/models/UserModel.dart';
 import 'package:chatproject/screens/DashBoard.dart';
 import 'package:chatproject/widgets/chatBox.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key, required this.user}) : super(key: key);
@@ -17,9 +22,15 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   var connection = Get.put(ConnectionController());
   TextEditingController messageController = TextEditingController();
+  ScrollController _controller = ScrollController();
+
+  final ImagePicker picker = ImagePicker();
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _controller.jumpTo(_controller.position.maxScrollExtent);
+    });
     super.initState();
   }
 
@@ -27,7 +38,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: connection.msglist.length > 1 ? true : true,
-      backgroundColor: const Color.fromARGB(231, 244, 250, 254),
+      backgroundColor: const Color.fromARGB(231, 255, 255, 255),
       appBar: PreferredSize(
         preferredSize: Size(Get.width, 100),
         child: SafeArea(
@@ -51,8 +62,8 @@ class _ChatPageState extends State<ChatPage> {
                         child: IconButton(
                           iconSize: 30,
                           icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.black,
+                            Icons.arrow_back_ios_new,
+                            color: Pallete.secondary,
                             size: 25,
                           ),
                           onPressed: () {
@@ -65,10 +76,16 @@ class _ChatPageState extends State<ChatPage> {
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0, right: 10),
                           child: CircleAvatar(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: Pallete.primary,
                             child: widget.user.name!.isNotEmpty
-                                ? Text(widget.user.name![0])
-                                : Text(widget.user.id![0]),
+                                ? Text(
+                                    widget.user.name![0],
+                                    style: const TextStyle(color: Colors.white),
+                                  )
+                                : Text(
+                                    widget.user.id![0],
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                           ),
                         ),
                         Column(
@@ -98,10 +115,12 @@ class _ChatPageState extends State<ChatPage> {
           SizedBox(
             height: Get.height * 0.74,
             child: GlowingOverscrollIndicator(
-              color: Colors.purpleAccent,
+              color: Pallete.secondary,
               axisDirection: AxisDirection.down,
               child: Obx(
                 () => ListView.builder(
+                  controller: _controller,
+                  reverse: false,
                   shrinkWrap: true,
                   itemCount: connection.msglist.length,
                   itemBuilder: (context, index) {
@@ -155,6 +174,9 @@ class _ChatPageState extends State<ChatPage> {
                       child: Center(
                         child: TextField(
                           controller: messageController,
+                          onChanged: (value) {
+                            setState(() {});
+                          },
                           decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintText: "Type here...."),
@@ -175,13 +197,15 @@ class _ChatPageState extends State<ChatPage> {
                         iconSize: 20,
                         icon: const Icon(
                           Icons.send,
-                          color: Colors.grey,
+                          color: Pallete.secondary,
                           size: 30,
                         ),
                         onPressed: () async {
-                          await connection.sendmsg(
-                              messageController.text, widget.user.id!);
-                          messageController.clear();
+                          if (messageController.text.isNotEmpty) {
+                            await connection.sendmsg(
+                                messageController.text, widget.user.id!);
+                            messageController.clear();
+                          }
                         },
                       ))
                 ],

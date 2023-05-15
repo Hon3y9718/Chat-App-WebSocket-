@@ -46,6 +46,8 @@ dependencies:
   flutter_windowmanager: ^0.2.0
   http: ^0.13.5
   path_provider: ^2.0.15
+  encrypt: ^5.0.1
+  image_picker: ^0.8.7+5
 
 dev_dependencies:
   flutter_test:
@@ -69,9 +71,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/frontpage1.jpg
-    - assets/pic.jpg
-    - assets/msgStore.json
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

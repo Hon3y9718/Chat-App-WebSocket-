@@ -25,6 +25,7 @@ class ConnectionController extends GetxController {
       myid = db.read("userId");
       getOldMsg();
       channelconnect();
+
       getContacts();
     }
     super.onInit();
@@ -33,6 +34,7 @@ class ConnectionController extends GetxController {
   getOldMsg() async {
     users.value = await store.getAllChatForDashboard();
     msglist.value = await store.getAllMessages();
+    print("callling Old Messages");
     if (contacts.isNotEmpty) {
       for (UserModel user in users) {
         for (Contact c in contacts) {
@@ -63,31 +65,42 @@ class ConnectionController extends GetxController {
 
   RxString? msgtext = "".obs;
 
-  List usersOnServer = [].obs;
+  var usersOnServer = [].obs;
 
   channelconnect() {
     //function to connect
     try {
       channel = IOWebSocketChannel.connect(
           "${Constant.WEBSOCKETURL}/$myid"); //channel IP : Port
+      print("Connecting to: ${Constant.WEBSOCKETURL}/$myid");
       channel.stream.listen(
-        (message) {
+        (message) async {
           print(message);
           if (message == "connected") {
             connected.value = true;
+            getUsersOnServer();
             print("Connection establised.");
           } else if (message == "send:success") {
             print("Message send success");
             msgtext!.value = "";
           } else if (message == "send:error") {
             print("Message send error");
+            Get.snackbar("User Offline",
+                "User is Offline, they can not receive message right now.");
           } else if (message.substring(0, 6) == "{'cmd'") {
             print("Message data");
             message = message.replaceAll(RegExp("'"), '"');
             var jsondata = json.decode(message);
 
             if (jsondata['cmd'] == "getUsers") {
-              usersOnServer = jsondata['users'];
+              usersOnServer.value = jsondata['users'];
+              getContacts();
+            } else if (jsondata['cmd'] == "sendImage") {
+              var msg = Msglist.fromJson(jsondata);
+              store.addNewMessage(id: msg.from, msg: msg);
+              getOldMsg();
+              msglist.add(msg);
+              msgtext!.value = "";
             } else {
               var msg = Msglist.fromJson(jsondata);
               store.addNewMessage(id: msg.from, msg: msg);
@@ -123,6 +136,31 @@ class ConnectionController extends GetxController {
           userid: id,
           from: myid,
           auth: auth,
+          fileName: null,
+          date: DateTime.now().toUtc().toString());
+      msglist.add(mymsg);
+
+      store.addNewMessage(id: id, msg: mymsg);
+
+      channel.sink.add(msg); //send message to reciever channel
+    } else {
+      channelconnect();
+      print("Websocket is not connected.");
+    }
+  }
+
+  Future<void> sendImg(String sendmsg, String id, String fileName) async {
+    if (connected.value == true) {
+      String msg =
+          "{'auth':'$auth','fileName':'$fileName','cmd':'sendImage','userid':'$id', 'msgtext':'$sendmsg','from':'$myid', 'date':'${DateTime.now().toUtc()}'}";
+      print(msg);
+      msgtext!.value = "";
+      var mymsg = Msglist(
+          msgtext: sendmsg,
+          userid: id,
+          from: myid,
+          auth: auth,
+          fileName: fileName,
           date: DateTime.now().toUtc().toString());
       msglist.add(mymsg);
 
@@ -161,8 +199,8 @@ class ConnectionController extends GetxController {
   getContacts() async {
     await askPermission();
     contacts.value = await ContactsService.getContacts();
-    await getUsersOnServer();
-    for (var element in contacts!) {
+    allMobile.clear();
+    for (var element in contacts) {
       if (element.phones!.isNotEmpty) {
         if (usersOnServer.contains(element.phones![0].value!
             .trim()
