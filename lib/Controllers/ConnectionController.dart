@@ -120,9 +120,11 @@ class ConnectionController extends GetxController {
           print("Web socket is closed");
 
           connected.value = false;
+          channelconnect();
         },
         onError: (error) {
           print(error.toString());
+          channelconnect();
         },
       );
     } catch (_) {
