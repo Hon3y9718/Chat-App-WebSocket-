@@ -91,17 +91,22 @@ class ConnectionController extends GetxController {
             print("Message data");
             message = message.replaceAll(RegExp("'"), '"');
             var jsondata = json.decode(message);
-
+            print("Json Commands: ${jsondata['cmd']}");
             if (jsondata['cmd'] == "getUsers") {
               usersOnServer.value = jsondata['users'];
               getContacts();
-            } else if (jsondata['cmd'] == "sendImage") {
+            }
+            if (jsondata['cmd'] == "sendImage") {
+              print("Image Recived");
               var msg = Msglist.fromJson(jsondata);
+              print(
+                  "JSON Receive: ${jsondata['fileName']}, ${jsondata['cmd']}, ${jsondata['userid']}, ${jsondata['from']}");
               store.addNewMessage(id: msg.from, msg: msg);
               getOldMsg();
               msglist.add(msg);
               msgtext!.value = "";
-            } else {
+            }
+            if (jsondata['cmd'] == "send") {
               var msg = Msglist.fromJson(jsondata);
               store.addNewMessage(id: msg.from, msg: msg);
               getOldMsg();
@@ -152,8 +157,8 @@ class ConnectionController extends GetxController {
   Future<void> sendImg(String sendmsg, String id, String fileName) async {
     if (connected.value == true) {
       String msg =
-          "{'auth':'$auth','fileName':'$fileName','cmd':'sendImage','userid':'$id', 'msgtext':'$sendmsg','from':'$myid', 'date':'${DateTime.now().toUtc()}'}";
-      print(msg);
+          "{'auth':'$auth','cmd':'sendImage','userid':'$id','from':'$myid', 'msgtext':'$sendmsg', 'date':'${DateTime.now().toUtc()}','fileName':'$fileName'}";
+      print("JSONSEND: $msg");
       msgtext!.value = "";
       var mymsg = Msglist(
           msgtext: sendmsg,
@@ -163,9 +168,7 @@ class ConnectionController extends GetxController {
           fileName: fileName,
           date: DateTime.now().toUtc().toString());
       msglist.add(mymsg);
-
       store.addNewMessage(id: id, msg: mymsg);
-
       channel.sink.add(msg); //send message to reciever channel
     } else {
       channelconnect();

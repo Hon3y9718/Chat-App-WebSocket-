@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:chatproject/Constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 Widget chatBox(BuildContext context, {text, date, isSender, fileName}) {
@@ -14,7 +15,7 @@ Widget chatBox(BuildContext context, {text, date, isSender, fileName}) {
       children: [
         Container(
           margin: const EdgeInsets.only(right: 20, top: 25, left: 20),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
                 topRight: const Radius.circular(15.0),
@@ -24,7 +25,11 @@ Widget chatBox(BuildContext context, {text, date, isSender, fileName}) {
             color: isSender ? Pallete.primary : Colors.white,
           ),
           child: fileName != null
-              ? Image.memory(base64Decode(text))
+              ? Image.memory(
+                  base64Decode(text),
+                  height: 200,
+                  width: Get.width * 0.7,
+                )
               : Text(
                   text,
                   style: TextStyle(

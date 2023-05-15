@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Constant {
-  static const WEBSOCKETURL = "ws://chatapp-backend-6rx0.onrender.com";
+  static const WEBSOCKETURL =
+      "ws://chattapp-env.eba-y593itqq.ap-south-1.elasticbeanstalk.com/";
 }
 
 class Pallete {

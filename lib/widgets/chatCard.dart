@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
-Widget chatCard(BuildContext context, {name, lastMessage, time, id, user}) {
+Widget chatCard(BuildContext context,
+    {name, lastMessage, time, id, user, fileName}) {
   return Padding(
     padding: const EdgeInsets.only(top: 0.0),
     child: SizedBox(
@@ -46,12 +47,30 @@ Widget chatCard(BuildContext context, {name, lastMessage, time, id, user}) {
                         ),
                         SizedBox(
                           width: Get.width * 0.5,
-                          child: Text(
-                            lastMessage ?? "",
-                            maxLines: 1,
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 103, 101, 101)),
-                          ),
+                          child: fileName == null
+                              ? Text(
+                                  lastMessage ?? "",
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                      color:
+                                          Color.fromARGB(255, 103, 101, 101)),
+                                )
+                              : Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.photo,
+                                      size: 15,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(
+                                      width: 2,
+                                    ),
+                                    Text(
+                                      "Photo",
+                                      style: TextStyle(color: Colors.grey),
+                                    )
+                                  ],
+                                ),
                         )
                       ],
                     ),

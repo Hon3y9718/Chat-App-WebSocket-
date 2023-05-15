@@ -61,6 +61,15 @@ class _DashboardState extends State<Dashboard> {
           style: TextStyle(color: Colors.black, fontSize: 25),
         ),
         actions: [
+          IconButton(
+            onPressed: () {
+              getChats();
+            },
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: Pallete.secondary,
+            ),
+          ),
           Obx(
             () => connection.connected.value
                 ? const Padding(
@@ -120,6 +129,8 @@ class _DashboardState extends State<Dashboard> {
                               },
                               child: chatCard(
                                 context,
+                                fileName: connection
+                                    .users[index].msglist!.last.fileName,
                                 user: connection.users[index],
                                 id: connection.users[index].id,
                                 name: connection.users[index].name == ""

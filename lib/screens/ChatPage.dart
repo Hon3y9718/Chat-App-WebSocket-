@@ -34,6 +34,14 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
   }
 
+  scrollToBottom() {
+    try {
+      _controller.jumpTo(_controller.position.maxScrollExtent);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,8 +125,8 @@ class _ChatPageState extends State<ChatPage> {
             child: GlowingOverscrollIndicator(
               color: Pallete.secondary,
               axisDirection: AxisDirection.down,
-              child: Obx(
-                () => ListView.builder(
+              child: Obx(() {
+                return ListView.builder(
                   controller: _controller,
                   reverse: false,
                   shrinkWrap: true,
@@ -135,6 +143,7 @@ class _ChatPageState extends State<ChatPage> {
                             ? chatBox(context,
                                 date: DateTime.parse(
                                     connection.msglist[index].date!),
+                                fileName: connection.msglist[index].fileName,
                                 isSender: connection.msglist[index].userid ==
                                         connection.myid
                                     ? false
@@ -143,8 +152,8 @@ class _ChatPageState extends State<ChatPage> {
                             : Container()
                         : Container();
                   },
-                ),
-              ),
+                );
+              }),
             ),
           ),
           Align(
@@ -195,18 +204,37 @@ class _ChatPageState extends State<ChatPage> {
                       width: 80,
                       child: IconButton(
                         iconSize: 20,
-                        icon: const Icon(
-                          Icons.send,
-                          color: Pallete.secondary,
-                          size: 30,
-                        ),
-                        onPressed: () async {
-                          if (messageController.text.isNotEmpty) {
-                            await connection.sendmsg(
-                                messageController.text, widget.user.id!);
-                            messageController.clear();
-                          }
-                        },
+                        icon: messageController.text.isEmpty
+                            ? const Icon(
+                                Icons.attach_file,
+                                color: Pallete.secondary,
+                                size: 30,
+                              )
+                            : const Icon(
+                                Icons.send,
+                                color: Pallete.secondary,
+                                size: 30,
+                              ),
+                        onPressed: messageController.text.isEmpty
+                            ? () async {
+                                final XFile? photo = await picker.pickImage(
+                                    source: ImageSource.gallery);
+                                var f = File(photo!.path);
+                                var bytes = f.readAsBytesSync();
+                                String base64Image = base64Encode(bytes);
+                                await connection.sendImg(
+                                    base64Image,
+                                    widget.user.id!,
+                                    "${DateTime.now()}Chatty.jpg");
+                              }
+                            : () async {
+                                if (messageController.text.isNotEmpty) {
+                                  await connection.sendmsg(
+                                      messageController.text, widget.user.id!);
+                                  messageController.clear();
+                                  setState(() {});
+                                }
+                              },
                       ))
                 ],
               ),
